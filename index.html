@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+        crossorigin="anonymous">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="alerta" class="alert alert-danger hidden-alert" role="alert">
+    </div>
+    <br>
+    <div class="row justify-content-md-center">
+        <label>Numero de palabras </label>
+        <input type="number" id="inputNumber" placeholder="Numero">
+        <button onclick="submit()" id="btnPalabra">Pedir palabras</button>
+        <br>
+    </div>
+    <div id="container" class="container">
+        <div id="container-palabras" class="row">
+
+        </div>
+    </div>
+    <div id="container-table"></div>
+</body>
+
+<script>
+    var nPalabras;
+    var palabras = [];
+    var sopa = [];
+    var tam_tabla;
+    var indexes = [];
+    var pal_eval = "";
+    function submit() {
+
+        this.nPalabras = document.getElementById('inputNumber').value;
+        var alerta = document.getElementById('alerta');
+        if (this.nPalabras === '') {
+            alerta.innerHTML = "Numero de palabras vacio";
+            alerta.classList.remove('hidden-alert');
+        } else if (nPalabras < 6 && nPalabras > 15) {
+            alerta.innerHTML = "Numero de palabras debe estar entre 6 y 15";
+            alerta.classList.remove('hidden-alert');
+        } else {
+            alerta.classList.add('hidden-alert');
+            for (var i = 1; i <= parseInt(nPalabras); i++) {
+                var label = document.createElement("label");
+                label.innerHTML = 'Palabra' + i;
+                var input = document.createElement("input");
+                input.setAttribute('type', 'text');
+                input.setAttribute('id', 'palabra' + i);
+                input.setAttribute('name', 'input' + i);
+                input.setAttribute('class', 'form-control');
+                //var br = document.createElement("br");
+
+                var div = document.createElement("div");
+                div.classList.add('col-4');
+
+
+                div.appendChild(label);
+                div.appendChild(input);
+                var container = document.getElementById('container-palabras');
+                container.appendChild(div);
+                document.getElementById('btnPalabra').disabled = "true";
+            }
+
+            var buttonG = document.createElement("button");
+            buttonG.innerHTML = 'Generar';
+            buttonG.setAttribute('id', 'btnGenerar');
+            buttonG.setAttribute('onclick', 'generar()');
+            buttonG.setAttribute('class', 'btn btn-primary btns');
+            var buttonR = document.createElement("button");
+            buttonR.innerHTML = 'Volver a iniciar';
+            buttonR.setAttribute('id', 'btnReiniciar');
+            buttonR.onclick = function(){
+                location.reload();
+            }
+            buttonR.setAttribute('class', 'btn btn-primary btns');
+            var br = document.createElement("br");
+            var container = document.getElementById('container');
+            container.appendChild(br);
+            container.appendChild(buttonG);
+            container.appendChild(buttonR);
+
+            container.appendChild(br);
+        }
+
+    }
+    function generar() {
+        var longitud = 0;
+        document.getElementById('btnGenerar').disabled = true;
+
+        for (var i = 1; i <= nPalabras; i++) {
+            var palabra = document.getElementById('palabra' + i).value;
+            if (palabra.length > longitud) {
+                longitud = palabra.length;
+            }
+        }
+        console.log(longitud)
+
+        for (var i = longitud; i > 2; i--) {
+            for (var j = 1; j <= nPalabras; j++) {
+                var palabra = document.getElementById('palabra' + j).value;
+                if (palabra.length == i) {
+                    console.log(palabra.length, palabra);
+                    palabras.push(palabra);
+                }
+            }
+        }
+        console.log(palabras);
+        createTable(longitud);
+    }
+    function createTable(longitud) {
+        if (longitud <= this.nPalabras) {
+            this.tam_tabla = parseInt(nPalabras) + 2;
+        } else {
+            this.tam_tabla = longitud + 2;
+        }
+
+        for (i = 0; i < tam_tabla; i++) {
+            sopa[i] = new Array(tam_tabla);
+
+        }
+        for (var i = 0; i < nPalabras; i++) {
+            var random_boolean = Math.random() >= 0.5;
+            if (random_boolean) {
+                vertical(i);
+            } else {
+                horizontal(i);
+            }
+        }
+
+        console.log(sopa);
+        for (var i = 0; i < tam_tabla; i++) {
+            for (var j = 0; j < tam_tabla; j++) {
+                if (sopa[i][j] == undefined) {
+                    var l = randomLetter();
+                    sopa[i][j] = l;
+                }
+            }
+        }
+
+        console.log(sopa);
+
+        var container = document.getElementById('container-table');
+
+        var table = document.createElement('table');
+        table.border = "2";
+        table.setAttribute('class', 'table');
+
+        for (var it = 0; it < tam_tabla; it++) {
+            var tr = document.createElement('tr');
+            for (var jt = 0; jt < tam_tabla; jt++) {
+                var td = document.createElement('th');
+                td.innerHTML = sopa[it][jt];
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        }
+        container.appendChild(table);
+
+        var table = document.getElementsByTagName("table")[0];
+        var cells = table.getElementsByTagName("th"); // 
+
+        for (var i = 0; i < cells.length; i++) {
+            // Cell Object
+            var cell = cells[i];
+            // Track with onclick
+            cell.onclick = function () {
+                var cellIndex = this.cellIndex;
+                var rowIndex = this.parentNode.rowIndex;
+
+                var letraS = table.rows[rowIndex].cells[cellIndex].innerHTML;
+                table.rows[rowIndex].cells[cellIndex].classList.add('cell_select');
+
+                var index = [rowIndex, cellIndex];
+                indexes.push(index);
+                pal_eval = pal_eval + letraS;
+
+                if (indexes.length > 1) {
+                    console.log("Indexes mayor a 2")
+                    if (indexes[indexes.length - 1][0] == indexes[indexes.length - 2][0] || indexes[indexes.length - 1][1] == indexes[indexes.length - 2][1]) {
+                        for (var ie = 1; ie <= nPalabras; ie++) {
+                            var palabrae = document.getElementById('palabra' + ie).value.toUpperCase();
+                            console.log(palabrae);
+                            if (pal_eval == palabrae) {
+                                document.getElementById('palabra' + ie).setAttribute('class', 'found');
+                                for (var ic = 0; ic < indexes.length; ic++) {
+                                    table.rows[indexes[ic][0]].cells[indexes[ic][1]].setAttribute('class', 'cell_ok');
+                                }
+                            }
+                        }
+
+                    } else {
+                        for (var ic = 0; ic < indexes.length; ic++) {
+                            table.rows[indexes[ic][0]].cells[indexes[ic][1]].classList.remove('cell_select');;
+                        }
+
+                        indexes = [];
+                        pal_eval = "";
+
+                    }
+                }
+
+                console.log(index, letraS, pal_eval, indexes);
+            }
+        }
+
+    }
+    function vertical(pa) {
+        var splited = palabras[pa].toUpperCase().split('');
+        var y;
+        var fil;
+        var col;
+        var volver = 1;
+
+
+        while (volver == 1) {
+            volver = 0;
+            y = tam_tabla - palabras[pa].length;
+            fil = Math.floor((Math.random() * y));//Math.round(Math.random() * (y - 0));
+            col = Math.floor((Math.random() * tam_tabla));//Math.round(Math.random() * (tam_tabla - 0));
+            var aux = fil;
+            for (var iv = 0; iv < palabras[pa].length; iv++) {
+                if (sopa[aux][col] != splited[iv] && sopa[aux][col] != undefined) {
+                    volver = 1;
+                }
+
+                aux++;
+            }
+        }
+
+
+        console.log(col, fil, tam_tabla);
+        for (var i = 0; i < palabras[pa].length; i++) {
+            console.log(splited[i]);
+            sopa[fil][col] = splited[i];
+            fil++;
+            //console.log(sopa);
+        }
+    }
+    function horizontal(pa) {
+        var splited = palabras[pa].toUpperCase().split('');
+        var y;
+        var fil;
+        var col;
+        var volver = 1;
+        while (volver == 1) {
+            volver = 0;
+            y = tam_tabla - palabras[pa].length;
+            fil = Math.floor((Math.random() * tam_tabla));//Math.round(Math.random() * (tam_tabla - 0));
+            col = Math.floor((Math.random() * y));//Math.round(Math.random() * (y - 0));
+            var aux = col;
+            for (var ih = 0; ih < palabras[pa].length; ih++) {
+                if (sopa[fil][aux] != splited[ih] && sopa[fil][aux] != undefined) {
+                    volver = 1;
+                }
+                aux++;
+            }
+        }
+
+        console.log("horizontal", col, fil, tam_tabla);
+        for (var i = 0; i < palabras[pa].length; i++) {
+            console.log(splited[i]);
+            sopa[fil][col] = splited[i];
+            col++;
+            //console.log(sopa);
+        }
+
+    }
+
+    function randomLetter() {
+        //var letras = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','ñ','o','p','q','r','s','t','v','w','x','y','z'];
+        //console.log(letras[Math.round(Math.random()*26)]); 
+        var letter = Math.random().toString(36).replace(/[^a-z]+/g, '').substring(0, 1);
+        //console.log(letter);
+        return letter.toUpperCase();
+    }
+
+    function getWord() {
+        var cellIndex = this.cellIndex + 1;
+        var rowIndex = this.parentNode.rowIndex + 1;
+        var letra = this.innerHTML;
+        console.log(cellIndex, rowIndex, letra);
+    }
+
+    function evalue() {
+        console.log(indexes, pal_eval);
+        // var table = document.getElementsByTagName("table")[0];
+        // var rowinit = indexes[0][0];
+        // var cellinit = indexes[0][1];
+        // var ok = true;
+        // for (var ii = 1; ii < indexes.length;ii++){
+        //     if (indexes[ii][0]==rowinit || indexes[ii][1]==cellinit){
+        //     }else{
+        //         ok = false;
+        //     }       
+        // }
+        // if (ok == true){
+        //     for (var ie = 1 ; ie <= nPalabras; ie++){
+        //         var palabrae = document.getElementById('palabra' + ie).value;
+        //         if(pal_eval == palabrae){
+        //             document.getElementById('palabra'+ ie).classList.add('found')
+        //         }
+        //     }
+        //     for(var ic = 0; ic < indexes.length;ic ++){
+        //         table.rows[indexes[ic][0]].cells[indexes[ic][1]].classList.setAttribute('class','cell_ok');
+        //     }
+        // }
+        // indexes=[];
+        // pal_eval = "";
+    }
+</script>
+
+</html>

@@ -1,0 +1,27 @@
+.hidden-alert{
+    display: none;
+}
+
+.visible-alert{
+    display: block;
+}
+
+.div-palabra{
+    float: left;
+}
+
+.btns{
+    margin: 4px;
+    margin-top: 15px;
+}
+
+.cell_select{
+    background-color: yellow;
+}
+.cell_ok{
+    background-color: lime;
+}
+
+.found{
+    background-color: lawngreen;
+}
